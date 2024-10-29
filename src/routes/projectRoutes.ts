@@ -3,7 +3,6 @@ import {body, param} from "express-validator";
 import {ProjectController} from "../controllers/ProjectController";
 import {handleInputErrors} from "../middleware/validation";
 import {TaskController} from "../controllers/TaskController";
-import project from "../models/Project";
 import {validateProjectExists} from "../middleware/project";
 
 const router = Router();
@@ -20,6 +19,7 @@ router.post('/',
 );
 
 router.get('/', ProjectController.getAllProjects)
+
 router.get('/:id',
     param('id').isMongoId().withMessage('Invalid project ID'),
     handleInputErrors,
@@ -48,8 +48,10 @@ router.delete('/:id',
  * Task's routes ===============================================================
  */
 
+// Middleware to validate if project exists when route has projectId param
+router.param('projectId', validateProjectExists);
+
 router.post('/:projectId/tasks',
-    validateProjectExists,
     body('name')
         .trim().notEmpty().withMessage('Task\'s name is required'),
     body('description')
@@ -59,8 +61,36 @@ router.post('/:projectId/tasks',
 );
 
 router.get('/:projectId/tasks',
-    validateProjectExists,
     TaskController.getProjectTasks
 );
+
+router.get('/:projectId/tasks/:taskId',
+    param('taskId').isMongoId().withMessage('Invalid task ID'),
+    handleInputErrors,
+    TaskController.getTaskById
+);
+
+router.put('/:projectId/tasks/:taskId',
+    param('taskId').isMongoId().withMessage('Invalid task ID'),
+    body('name')
+        .trim().notEmpty().withMessage('Task\'s name is required'),
+    body('description')
+        .trim().notEmpty().withMessage('Task\'s description is required'),
+    handleInputErrors,
+    TaskController.updateTask
+)
+
+router.delete('/:projectId/tasks/:taskId',
+    param('taskId').isMongoId().withMessage('Invalid task ID'),
+    handleInputErrors,
+    TaskController.deleteTask
+)
+
+router.post('/:projectId/tasks/:taskId/status',
+    param('taskId').isMongoId().withMessage('Invalid task ID'),
+    body('status').notEmpty().withMessage('Task\'s status is required'),
+    handleInputErrors,
+    TaskController.updateStatus
+)
 
 export default router;
