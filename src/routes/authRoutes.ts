@@ -22,4 +22,11 @@ router.post('/create-account',
     AuhtController.createAccount
 );
 
+router.post('/confirm-account',
+    body('token')
+        .notEmpty().withMessage('Token is required'),
+    handleInputErrors,
+    AuhtController.confirmAccount
+);
+
 export default router;
