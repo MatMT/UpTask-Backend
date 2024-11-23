@@ -53,8 +53,28 @@ export class AuhtController {
                 res.status(401).json({error: error.message});
                 return;
             }
+
+            const user = await User.findById(tokenExist.user);
+            user.confirmed = true;
+
+            await Promise.allSettled([user.save(), tokenExist.deleteOne()]);
+            res.send('Account confirmed successfully, check your email for confirmation');
         } catch (error) {
             res.status(500).json({error: 'Server Error'});
+        }
+    }
+
+    static login = async (req: Request, res: Response) => {
+        try {
+            const {email, password} = req.body;
+            const user = await User.findOne({email});
+            if(!user) {
+                const error = new Error("User doesn't exist");
+                res.status(401).json({error: error.message});
+                return
+            }
+        } catch (error) {
+            res.status(500).json({error: 'Server Error'})
         }
     }
 }
