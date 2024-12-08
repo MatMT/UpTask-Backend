@@ -1,7 +1,7 @@
 import type {Request, Response} from 'express';
 import bcrypt from 'bcrypt';
 import User from "../models/User";
-import {hashPassword} from "../utils/auth";
+import {checkPassword, hashPassword} from "../utils/auth";
 import Token from "../models/Token";
 import {generateSixToken} from "../utils/token";
 import {transporter} from "../config/nodeMailer";
@@ -58,7 +58,7 @@ export class AuhtController {
             user.confirmed = true;
 
             await Promise.allSettled([user.save(), tokenExist.deleteOne()]);
-            res.send('Account confirmed successfully, check your email for confirmation');
+            res.send('Account confirmed successfully');
         } catch (error) {
             res.status(500).json({error: 'Server Error'});
         }
@@ -68,11 +68,42 @@ export class AuhtController {
         try {
             const {email, password} = req.body;
             const user = await User.findOne({email});
-            if(!user) {
+
+            if (!user) {
                 const error = new Error("User doesn't exist");
+                res.status(404).json({error: error.message});
+                return
+            }
+
+            if (!user.confirmed) {
+                const token = new Token();
+                token.user = user.id;
+                token.token = generateSixToken();
+
+                AuthEmail.sendConfirmationEmail({
+                    email: user.email,
+                    name: user.name,
+                    token: token.token
+                });
+
+                await token.save();
+
+                const error = new Error("The user account is not confirmed, we send you a confirmation email again.");
                 res.status(401).json({error: error.message});
                 return
             }
+
+            // Check password
+            const isPasswordCorrect = await checkPassword(password, user.password);
+
+            if (!isPasswordCorrect) {
+                const error = new Error('Invalid Password');
+                res.status(401).json({error: error.message});
+                return;
+            }
+
+            res.send('Authenticated...');
+
         } catch (error) {
             res.status(500).json({error: 'Server Error'})
         }
