@@ -38,4 +38,11 @@ router.post('/login',
     AuhtController.login
 );
 
+router.post('/resend-confirmation-token',
+    body('email')
+        .isEmail().withMessage('Invalid email'),
+    handleInputErrors,
+    AuhtController.resendConfirmationToken
+);
+
 export default router;

@@ -108,4 +108,41 @@ export class AuhtController {
             res.status(500).json({error: 'Server Error'})
         }
     }
+
+    static resendConfirmationToken = async (req: Request, res: Response) => {
+        try {
+            const {email} = req.body;
+
+            const userExists = await User.findOne({email})
+            if (!userExists) {
+                const error = new Error(`User doesn't exists`);
+                res.status(404).json({error: error.message});
+                return
+            }
+
+            if(userExists.confirmed) {
+                const error = new Error(`User already confirmed`);
+                res.status(403).json({error: error.message});
+                return
+            }
+
+            // Token generation
+            const token = new Token();
+            token.token = generateSixToken();
+            token.user = userExists.id;
+
+            // Send email
+            AuthEmail.sendConfirmationEmail({
+                email: userExists.email,
+                name: userExists.name,
+                token: token.token
+            });
+
+            await Promise.allSettled([userExists.save(), token.save()]);
+
+            res.send('Token sent successfully, check your email for confirmation');
+        } catch (error) {
+            res.status(500).json({error: "Hubo un error"});
+        }
+    }
 }

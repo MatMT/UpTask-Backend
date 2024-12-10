@@ -48,11 +48,12 @@ export class AuthEmail {
                     <div class="email-body">
                         <p class="font-bold">Note: The confirmation is available only for the next 15 minutes!</p>
                         <p>We're excited to have you on board! Please confirm your account to start managing your tasks efficiently.</p>
-                        <a class="cta-button" href="http://localhost:5173/${token}" target="_blank" rel="noreferrer">
+                        <a class="cta-button" href="${process.env.FRONTEND_URL}/auth/confirm-account" target="_blank" rel="noreferrer">
                             Confirm My Account
                         </a>
                         <p>If the button above doesn't work, copy and paste the link below into your browser:</p>
-                        <p><a href="http://localhost:5173/${token}" target="_blank" rel="noreferrer">http://localhost:5173/${token}</a></p>
+                        <p><strong>${token}</strong></p>
+                        <p><a href="${process.env.FRONTEND_URL}/auth/confirm-account" target="_blank" rel="noreferrer">${process.env.FRONTEND_URL}/auth/confirm-account</a></p>
                     </div>
                     <div class="email-footer">
                         <p>&copy; 2024 UpTask. All rights reserved.</p>
