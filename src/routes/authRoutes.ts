@@ -45,4 +45,11 @@ router.post('/resend-confirmation-token',
     AuhtController.resendConfirmationToken
 );
 
+router.post('/forgot-password',
+    body('email')
+        .isEmail().withMessage('Invalid email'),
+    handleInputErrors,
+    AuhtController.forgotPassword
+);
+
 export default router;

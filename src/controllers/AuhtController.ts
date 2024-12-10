@@ -145,4 +145,34 @@ export class AuhtController {
             res.status(500).json({error: "Hubo un error"});
         }
     }
+
+    static forgotPassword = async (req: Request, res: Response) => {
+        try {
+            const {email} = req.body;
+
+            const userExists = await User.findOne({email})
+            if (!userExists) {
+                const error = new Error(`User doesn't exists`);
+                res.status(404).json({error: error.message});
+                return
+            }
+
+            // Token generation
+            const token = new Token();
+            token.token = generateSixToken();
+            token.user = userExists.id;
+            await token.save();
+
+            // Send email
+            AuthEmail.sendPasswordResetToken({
+                email: userExists.email,
+                name: userExists.name,
+                token: token.token
+            });
+
+            res.send('Token sent successfully, check your email for instructions');
+        } catch (error) {
+            res.status(500).json({error: "Hubo un error"});
+        }
+    }
 }
