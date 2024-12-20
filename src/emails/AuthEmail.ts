@@ -36,7 +36,7 @@ export class AuthEmail {
             from: "UpTask <admin@uptask.com>",
             to: email,
             subject: `UpTask - ${name}, Reset Your Password`,
-            text: `Hi ${name}, reset your password by visiting the following link: ${process.env.FRONTEND_URL}/auth/reset-password/${token}`,
+            text: `Hi ${name}, reset your password by visiting the following link: ${process.env.FRONTEND_URL}/auth/reset-password`,
             html: htmlContent,
         });
     }
@@ -61,12 +61,12 @@ export class AuthEmail {
                 <div class="email-body">
                     <p class="font-bold">Note: This password reset link is valid for only 15 minutes!</p>
                     <p>We received a request to reset the password for your UpTask account. Click the button below to proceed:</p>
-                    <a class="cta-button" href="${process.env.FRONTEND_URL}/auth/reset-password/${token}" target="_blank" rel="noreferrer">
+                    <a class="cta-button" href="${process.env.FRONTEND_URL}/auth/reset-password" target="_blank" rel="noreferrer">
                         Reset Password
                     </a>
                     <p>If the button above doesn't work, copy and paste the link below into your browser:</p>
                     <p><strong>${token}</strong></p>
-                    <p><a href="${process.env.FRONTEND_URL}/auth/reset-password/${token}" target="_blank" rel="noreferrer">${process.env.FRONTEND_URL}/auth/reset-password/${token}</a></p>
+                    <p><a href="${process.env.FRONTEND_URL}/auth/reset-password" target="_blank" rel="noreferrer">${process.env.FRONTEND_URL}/auth/reset-password</a></p>
                     <p>If you did not request a password reset, please ignore this email or contact support if you have concerns.</p>
                 </div>
                 <div class="email-footer">

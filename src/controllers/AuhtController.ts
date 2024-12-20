@@ -120,7 +120,7 @@ export class AuhtController {
                 return
             }
 
-            if(userExists.confirmed) {
+            if (userExists.confirmed) {
                 const error = new Error(`User already confirmed`);
                 res.status(403).json({error: error.message});
                 return
@@ -173,6 +173,45 @@ export class AuhtController {
             res.send('Token sent successfully, check your email for instructions');
         } catch (error) {
             res.status(500).json({error: "Hubo un error"});
+        }
+    }
+
+    static validateToken = async (req: Request, res: Response) => {
+        try {
+            const {token} = req.body;
+            const tokenExist = await Token.findOne({token});
+
+            if (!tokenExist) {
+                const error = new Error('Invalid Token')
+                res.status(404).json({error: error.message});
+                return;
+            }
+
+            res.send('Validate Token, define your new password.');
+        } catch (error) {
+            res.status(500).json({error: 'Server Error'});
+        }
+    }
+
+    static updatePasswordWithToken = async (req: Request, res: Response) => {
+        try {
+            const {token} = req.params;
+            const {password} = req.body;
+
+            const tokenExist = await Token.findOne({token});
+            if (!tokenExist) {
+                const error = new Error('Invalid Token')
+                res.status(401).json({error: error.message});
+                return;
+            }
+
+            const user = await User.findById(tokenExist.user);
+            user.password = await hashPassword(password);
+
+            await Promise.allSettled([user.save(), tokenExist.deleteOne()]);
+            res.send('Password updated successfully.');
+        } catch (error) {
+            res.status(500).json({error: 'Server Error'});
         }
     }
 }
