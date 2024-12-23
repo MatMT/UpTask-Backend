@@ -6,6 +6,7 @@ import Token from "../models/Token";
 import {generateSixToken} from "../utils/token";
 import {transporter} from "../config/nodeMailer";
 import {AuthEmail} from "../emails/AuthEmail";
+import {generateJWT} from "../utils/jwt";
 
 export class AuhtController {
     static createAccount = async (req: Request, res: Response) => {
@@ -102,7 +103,8 @@ export class AuhtController {
                 return;
             }
 
-            res.send('Authenticated...');
+            const token = generateJWT({id: user._id});
+            res.send(token);
 
         } catch (error) {
             res.status(500).json({error: 'Server Error'})
