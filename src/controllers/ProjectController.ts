@@ -20,7 +20,11 @@ export class ProjectController {
 
     static getAllProjects = async (req: Request, res: Response) => {
         try {
-            const projects = await Project.find({});
+            const projects = await Project.find({
+                $or: [
+                    {manager: {$in: req.user.id}}
+                ]
+            });
             res.json(projects);
         } catch (error) {
             console.log(error);
@@ -32,10 +36,14 @@ export class ProjectController {
         const {id} = req.params
         try {
             const project = await Project.findById(id).populate('tasks')
-
             if (!project) {
                 const error = new Error('Project not found!')
-                res.status(400).json({error: error.message})
+                res.status(404).json({error: error.message})
+                return
+            }
+            if (project.manager.toString() !== req.user.id.toString()) {
+                    const error = new Error('Invalid Action!')
+                res.status(404).json({error: error.message})
                 return
             }
             res.json(project)
@@ -55,7 +63,11 @@ export class ProjectController {
                 res.status(400).json({error: error.message})
                 return
             }
-
+            if (project.manager.toString() !== req.user.id.toString()) {
+                const error = new Error('Invalid Action!')
+                res.status(404).json({error: error.message})
+                return
+            }
             await project.save();
             res.json('Project updated successfully');
         } catch (error) {
@@ -74,7 +86,11 @@ export class ProjectController {
                 res.status(400).json({error: error.message})
                 return
             }
-
+            if (project.manager.toString() !== req.user.id.toString()) {
+                const error = new Error('Invalid Action!')
+                res.status(404).json({error: error.message})
+                return
+            }
             await project.deleteOne();
             res.json('Project deleted successfully');
         } catch (error) {

@@ -216,4 +216,9 @@ export class AuhtController {
             res.status(500).json({error: 'Server Error'});
         }
     }
+
+    static user = async (req: Request, res: Response) => {
+        res.json(req.user);
+        return;
+    }
 }

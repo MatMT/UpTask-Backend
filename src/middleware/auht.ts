@@ -28,15 +28,14 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 
             if(userExist) {
                 req.user = userExist;
+                return next();
             } else {
                 res.status(500).json({error: 'Invalid Token'});
+                return;
             }
         }
-
     } catch (error) {
         res.status(500).json({error: 'Server Error, Invalid Token'});
     }
-
-    next();
 }
 
