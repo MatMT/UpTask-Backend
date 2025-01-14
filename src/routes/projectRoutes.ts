@@ -5,6 +5,7 @@ import {handleInputErrors} from "../middleware/validation";
 import {TaskController} from "../controllers/TaskController";
 import {validateProjectExists} from "../middleware/project";
 import {authenticate} from "../middleware/auht";
+import {TeamController} from "../controllers/TeamController";
 
 const router = Router();
 
@@ -94,6 +95,20 @@ router.post('/:projectId/tasks/:taskId/status',
     body('status').notEmpty().withMessage('Task\'s status is required'),
     handleInputErrors,
     TaskController.updateStatus
+)
+
+router.post('/:projectId/team/find',
+    body('email')
+        .isEmail().toLowerCase().withMessage('Invalid email'),
+    handleInputErrors,
+    TeamController.findMemberByEmail
+)
+
+router.post('/:projectId/team',
+    body('id')
+        .isMongoId().withMessage('Invalid Id'),
+    handleInputErrors,
+    TeamController.addMemberById
 )
 
 export default router;
