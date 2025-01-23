@@ -9,7 +9,7 @@ export class TeamController {
 
         if (!user) {
             const error = new Error("User doesn't exist");
-            res.status(404).json({error: error.message});
+            res.status(404).json({message: error.message});
             return;
         }
 
@@ -27,13 +27,13 @@ export class TeamController {
 
         if (!user) {
             const error = new Error("User doesn't exist");
-            res.status(404).json({error: error.message});
+            res.status(404).json({message: error.message});
             return;
         }
 
         if (req.project.team.some(team => team.toString() === user.id.toString())) {
             const error = new Error("The user already exist in this project");
-            res.status(404).json({error: error.message});
+            res.status(404).json({message: error.message});
             return;
         }
 
@@ -48,7 +48,7 @@ export class TeamController {
 
         if (!req.project.team.some(team => team.toString() === id)) {
             const error = new Error("The user does not exist in this project.");
-            res.status(404).json({error: error.message});
+            res.status(404).json({message: error.message});
             return;
         }
 
