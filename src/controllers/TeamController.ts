@@ -18,7 +18,7 @@ export class TeamController {
 
     static getProjectTeam = async (req: Request, res: Response) => {
         const { team } = await req.project.populate('team', 'id name email')
-        res.status(200).json({ ok: true, team })
+        res.status(200).json(team);
     }
 
     static addMemberById = async (req: Request, res: Response) => {
@@ -44,15 +44,15 @@ export class TeamController {
     }
 
     static removeMemberById = async (req: Request, res: Response) => {
-        const {id} = req.body;
+        const {userId} = req.params;
 
-        if (!req.project.team.some(team => team.toString() === id)) {
+        if (!req.project.team.some(team => team.toString() === userId)) {
             const error = new Error("The user does not exist in this project.");
             res.status(404).json({message: error.message});
             return;
         }
 
-        req.project.team = req.project.team.filter(teamMember => teamMember.toString() !== id);
+        req.project.team = req.project.team.filter(teamMember => teamMember.toString() !== userId);
         await req.project.save();
         res.send('User removed successfully');
     }
