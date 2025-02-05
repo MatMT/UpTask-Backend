@@ -8,7 +8,8 @@ import Task from '../models/Task';
  * @param res
  */
 export const validateTaskBelongsToProject = async (taskId: string, projectId: string, res: Response) => {
-    const task = await Task.findById(taskId);
+    const task = await Task.findById(taskId)
+        .populate({path: 'completedBy', select: '_id name email'});
 
     if (!task) {
         res.status(404).json({ error: 'Task not found!' });

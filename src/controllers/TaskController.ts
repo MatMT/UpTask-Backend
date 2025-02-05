@@ -21,8 +21,15 @@ export class TaskController {
 
     static getProjectTasks = async (req: Request, res: Response) => {
         try {
-            const tasks = await Task.find({project: req.project.id}).populate('project');
-            res.json(tasks);
+            const tasks = await Task.find({project: req.project.id})
+                .populate(['project', {path: 'completedBy', select: '_id name email'}]);
+
+            const transformedTasks = tasks.map(task => ({
+                ...task.toObject(),
+                completedBy: task.completedBy || null
+            }));
+
+            res.json(transformedTasks);
         } catch (error) {
             console.log(error)
             res.status(500).json({error: 'Server Error'});
@@ -79,6 +86,12 @@ export class TaskController {
             const {status} = req.body;
             const task = await validateTaskBelongsToProject(taskId, req.project.id, res);
             if (!task) return;
+
+            if (status === 'pending') {
+                task.completedBy = null;
+            } else {
+                task.completedBy = req.user.id;
+            }
 
             task.status = status;
             await task.save();
