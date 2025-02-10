@@ -21,15 +21,23 @@ export class TaskController {
 
     static getProjectTasks = async (req: Request, res: Response) => {
         try {
+            // const tasks = await Task.find({project: req.project.id})
+            //     .populate(['project', {path: 'completedBy', select: '_id name email'}]);
+
+            // const transformedTasks = tasks.map(task => ({
+            //     ...task.toObject(),
+            //     completedBy: task.completedBy || null
+            // }));
+
             const tasks = await Task.find({project: req.project.id})
-                .populate(['project', {path: 'completedBy', select: '_id name email'}]);
-
-            const transformedTasks = tasks.map(task => ({
-                ...task.toObject(),
-                completedBy: task.completedBy || null
-            }));
-
-            res.json(transformedTasks);
+                .populate('project')
+                .populate({
+                    path: 'completedBy.user',
+                    // model: 'User',
+                    select: '_id name email'
+                });
+            
+            res.json(tasks);
         } catch (error) {
             console.log(error)
             res.status(500).json({error: 'Server Error'});
@@ -87,12 +95,12 @@ export class TaskController {
             const task = await validateTaskBelongsToProject(taskId, req.project.id, res);
             if (!task) return;
 
-            if (status === 'pending') {
-                task.completedBy = null;
-            } else {
-                task.completedBy = req.user.id;
+            const data = {
+                user: req.user.id,
+                status: status,
             }
 
+            task.completedBy.push(data);
             task.status = status;
             await task.save();
             res.send('Task status updated successfully');

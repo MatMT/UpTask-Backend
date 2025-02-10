@@ -37,7 +37,7 @@ export class ProjectController {
         const {id} = req.params
         try {
             const project = await Project.findById(id).
-                    populate({path: 'tasks', populate: {path: 'completedBy', select: '_id name email'}});
+                    populate({path: 'tasks', populate: {path: 'completedBy.user', select: '_id name email'}});
 
             if (!project) {
                 const error = new Error('Project not found!')
