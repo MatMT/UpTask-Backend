@@ -3,7 +3,8 @@ import {body, param} from "express-validator";
 import {ProjectController} from "../controllers/ProjectController";
 import {handleInputErrors} from "../middleware/validation";
 import {TaskController} from "../controllers/TaskController";
-import {validateProjectExists} from "../middleware/project";
+import {projectExists} from "../middleware/project";
+import {taskExists} from "../middleware/taks";
 import {authenticate} from "../middleware/auht";
 import {TeamController} from "../controllers/TeamController";
 import {hasAuthorization} from "../middleware/taks";
@@ -55,7 +56,7 @@ router.delete('/:id',
  */
 
 // Middleware to validate if project exists when route has projectId param
-router.param('projectId', validateProjectExists);
+router.param('projectId', projectExists);
 
 router.post('/:projectId/tasks',
     hasAuthorization,
@@ -70,6 +71,9 @@ router.post('/:projectId/tasks',
 router.get('/:projectId/tasks',
     TaskController.getProjectTasks
 );
+
+// Middleware to validate if task exists when route has taskId param
+router.param('taskId', taskExists);
 
 router.get('/:projectId/tasks/:taskId',
     param('taskId').isMongoId().withMessage('Invalid task ID'),
@@ -134,5 +138,14 @@ router.post('/:projectId/tasks/:taskId/notes',
     NoteController.createNote
 )
 
+router.get('/:projectId/tasks/:taskId/notes',
+    NoteController.getTaskNotes
+)
+
+router.delete('/:projectId/tasks/:taskId/notes/:noteId',
+    param('noteId').isMongoId().withMessage('Invalid Note ID'),
+    handleInputErrors,
+    NoteController.deleteNote
+)
 
 export default router;

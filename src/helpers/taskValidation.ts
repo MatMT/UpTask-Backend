@@ -9,7 +9,15 @@ import Task from '../models/Task';
  */
 export const validateTaskBelongsToProject = async (taskId: string, projectId: string, res: Response) => {
     const task = await Task.findById(taskId)
-        .populate({path: 'completedBy.user', select: '_id name email'});
+        .populate({ path: "completedBy.user", select: "_id name email" })
+        .populate({
+            path: "notes",
+            populate: {
+                path: "createdBy", // Especifica el path correctamente
+                model: "User", // Asegura que está referenciando al modelo correcto
+                select: "_id name email" // Selecciona los campos deseados
+            }
+        });
 
     if (!task) {
         res.status(404).json({ error: 'Task not found!' });
@@ -23,3 +31,4 @@ export const validateTaskBelongsToProject = async (taskId: string, projectId: st
 
     return task;
 };
+
