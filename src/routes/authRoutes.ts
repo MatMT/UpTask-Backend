@@ -82,10 +82,26 @@ router.get('/user',
 
 // Profile
 
-router.post('/update-profile',
+router.put('/update-profile',
     authenticate,
     handleInputErrors,
     AuthController.updateProfile
+);
+
+router.post('/update-password',
+    authenticate,
+    body('current_password')
+        .notEmpty().withMessage("Current Password mustn't be empty"),
+    body('password')
+        .isLength({min: 8}).withMessage('The new Password must be at least 8 characters.'),
+    body('password_confirmation').custom((value, {req}) => {
+        if (value !== req.body.password) {
+            throw new Error('Password confirmation is different')
+        }
+        return true
+    }),
+    handleInputErrors,
+    AuthController.updateCurrentUserPassword
 );
 
 export default router;
