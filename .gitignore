@@ -10,3 +10,7 @@ dist/
 
 # Environment files
 .env
+
+# MAC
+.DS_Store
+src/.DS_Store

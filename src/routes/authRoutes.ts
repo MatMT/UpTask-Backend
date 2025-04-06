@@ -1,6 +1,6 @@
 import {Router} from 'express';
 import {body, param} from "express-validator";
-import {AuhtController} from "../controllers/AuhtController";
+import {AuthController} from "../controllers/AuthController";
 import {handleInputErrors} from "../middleware/validation";
 import {authenticate} from "../middleware/auht";
 
@@ -20,14 +20,14 @@ router.post('/create-account',
     body('email')
         .isEmail().withMessage('Invalid email'),
     handleInputErrors,
-    AuhtController.createAccount
+    AuthController.createAccount
 );
 
 router.post('/confirm-account',
     body('token')
         .notEmpty().withMessage('Token is required'),
     handleInputErrors,
-    AuhtController.confirmAccount
+    AuthController.confirmAccount
 );
 
 router.post('/login',
@@ -36,28 +36,28 @@ router.post('/login',
     body('password')
         .notEmpty().withMessage('Password cannot be empty'),
     handleInputErrors,
-    AuhtController.login
+    AuthController.login
 );
 
 router.post('/resend-confirmation-token',
     body('email')
         .isEmail().withMessage('Invalid email'),
     handleInputErrors,
-    AuhtController.resendConfirmationToken
+    AuthController.resendConfirmationToken
 );
 
 router.post('/forgot-password',
     body('email')
         .isEmail().withMessage('Invalid email'),
     handleInputErrors,
-    AuhtController.forgotPassword
+    AuthController.forgotPassword
 );
 
 router.post('/validate-token',
     body('token')
         .notEmpty().withMessage('Token is required'),
     handleInputErrors,
-    AuhtController.validateToken
+    AuthController.validateToken
 );
 
 router.post('/update-password/:token',
@@ -72,12 +72,20 @@ router.post('/update-password/:token',
         return true
     }),
     handleInputErrors,
-    AuhtController.updatePasswordWithToken
+    AuthController.updatePasswordWithToken
 );
 
 router.get('/user',
     authenticate,
-    AuhtController.user
+    AuthController.user
 )
+
+// Profile
+
+router.post('/update-profile',
+    authenticate,
+    handleInputErrors,
+    AuthController.updateProfile
+);
 
 export default router;

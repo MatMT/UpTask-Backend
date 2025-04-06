@@ -8,7 +8,7 @@ import {transporter} from "../config/nodeMailer";
 import {AuthEmail} from "../emails/AuthEmail";
 import {generateJWT} from "../utils/jwt";
 
-export class AuhtController {
+export class AuthController {
     static createAccount = async (req: Request, res: Response) => {
         try {
             const {password, email} = req.body;
@@ -220,5 +220,26 @@ export class AuhtController {
     static user = async (req: Request, res: Response) => {
         res.json(req.user);
         return;
+    }
+
+    static updateProfile = async (req: Request, res: Response) => {
+        try {
+            const {email, name} = req.body || {};
+            const userExist = await User.findOne({email});
+
+            if(userExist) {
+                const error = new Error('Email already exists');
+                res.status(409).json({error: error.message});
+                return;
+            }
+
+            if (email) req.user.email = email;
+            if (name) req.user.name = name;
+
+            await req.user.save();
+            res.send('Profile updated successfully');
+        } catch (error) {
+            res.status(500).json({error: 'Server Error'});
+        }
     }
 }
